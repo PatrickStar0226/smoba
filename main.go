@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"github.com/superggfun/smoba/qywxpush"
+	"huaweicloud.com/go-runtime/pkg/runtime"
 	"log"
 	"time"
 
@@ -10,7 +12,6 @@ import (
 	"github.com/superggfun/smoba/doTask"
 	"github.com/superggfun/smoba/wxpush"
 	"huaweicloud.com/go-runtime/go-api/context"
-	"huaweicloud.com/go-runtime/pkg/runtime"
 )
 
 func run() {
@@ -27,12 +28,7 @@ func run() {
 		if err != nil {
 			log.Println(err)
 			markdown.Err = err
-			err := wxpush.PushE(markdown)
-			if err != nil {
-				log.Println(err)
-			} else {
-				log.Println("推送成功")
-			}
+			pushE(markdown)
 			continue
 		} else {
 			markdown.UserId = a.UserId
@@ -45,12 +41,7 @@ func run() {
 			if err != nil {
 				log.Println(err)
 				markdown.Err = err
-				err := wxpush.PushE(markdown)
-				if err != nil {
-					log.Println(err)
-				} else {
-					log.Println("推送成功")
-				}
+				pushE(markdown)
 				continue
 			} else {
 				for _, value := range list {
@@ -97,12 +88,7 @@ func run() {
 		if err != nil {
 			log.Println(err)
 			markdown.Err = err
-			err := wxpush.PushE(markdown)
-			if err != nil {
-				log.Println(err)
-			} else {
-				log.Println("推送成功")
-			}
+			pushE(markdown)
 			continue
 		}
 		m := make(map[string]struct{}, 7)
@@ -121,12 +107,7 @@ func run() {
 		if err != nil {
 			log.Println(err)
 			markdown.Err = err
-			err := wxpush.PushE(markdown)
-			if err != nil {
-				log.Println(err)
-			} else {
-				log.Println("推送成功")
-			}
+			pushE(markdown)
 			continue
 		}
 		l := make([]string, 0, 7)
@@ -149,12 +130,7 @@ func run() {
 		}
 		markdown.DoGift = l
 		markdown.Time = time.Now().Format("2006-01-02 15:04:05")
-		err = wxpush.Push(markdown)
-		if err != nil {
-			log.Println(err)
-		} else {
-			log.Println("推送成功")
-		}
+		push(markdown)
 	}
 
 }
@@ -165,4 +141,32 @@ func main() {
 func ApigTest(payload []byte, ctx context.RuntimeContext) (interface{}, error) {
 	run()
 	return "执行完毕", nil
+}
+
+func push(markdown wxpush.Markdown) {
+	if config.ReadFile().Pushplus != "" {
+		err := wxpush.Push(markdown)
+		log.Println(err)
+	}
+	if config.ReadFile().Webhookurl != "" {
+		err := qywxpush.Push(markdown)
+		log.Println(err)
+	}
+}
+
+func pushE(markdown wxpush.Markdown) {
+	if config.ReadFile().Pushplus != "" {
+		err := wxpush.PushE(markdown)
+		if err != nil {
+			log.Println("Pushplus 推送失败!")
+			log.Println(err)
+		}
+	}
+	if config.ReadFile().Webhookurl != "" {
+		err := qywxpush.PushE(markdown)
+		if err != nil {
+			log.Println("qywxpush 推送失败!")
+			log.Println(err)
+		}
+	}
 }
