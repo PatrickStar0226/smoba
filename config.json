@@ -11,5 +11,8 @@
   ],
   "wxpush": {
       "pushplus": ""
+  },
+  "qywxpush": {
+    "webhookurl": ""
   }
 }
